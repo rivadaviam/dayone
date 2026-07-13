@@ -1,0 +1,32 @@
+id: data-engineer
+name: Data Engineer
+summary: Profile for data engineers who will build and maintain data pipelines, warehousing and analytics infrastructure.
+permissions:
+  aws:
+    - s3-read-write
+    - athena-query
+    - glue-read-write
+    - cloudwatch-read
+  repositories:
+    access: read-write
+  ci_cd:
+    - view-build-logs
+    - trigger-staging-pipeline
+    - deploy-to-staging
+base_checklist:
+  day_1:
+    - Confirm access to AWS SSO / IAM Identity Center.
+    - Configure AWS CLI with the staging profile.
+    - Clone project repositories.
+    - Run local bootstrap.
+    - Run a sample pipeline against the staging data lake.
+    - Open a documentation PR or a simple first fix.
+  week_1:
+    - Complete the data architecture walkthrough.
+    - Review 2 PRs from teammates.
+    - Understand the data pipeline orchestration and scheduling.
+    - Understand data quality and incident runbooks.
+approvals_required:
+  - prod-write
+  - secrets-prod-read
+  - admin-access

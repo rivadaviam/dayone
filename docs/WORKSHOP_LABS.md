@@ -5,13 +5,13 @@ The goal is not to have everything solved, but to make **clear what we want to a
 
 ## Map: what's simulated and what you'll build?
 
-| Layer | Lab 1 (local) | Lab 2 (Strands) | Lab 3 (accelerator) |
-|------|---------------|-----------------|--------------------|
-| Orchestration | `build_plan()` in Python | **Strands agent** decides which tool to use | Agent on AgentCore Runtime |
-| Tools | Python functions | Same functions as `@tool` | Same tools + real AWS (future) |
-| Data | YAML in `profiles/` and `projects/` | YAML (same) | YAML + S3 / DynamoDB (future) |
-| Permissions | **Simulated** (text in the plan) | Simulated | IAM Identity Center (future) |
-| State | JSON in `.local-progress/` | Local JSON | DynamoDB (future) |
+| Layer         | Lab 1 (local)                       | Lab 2 (Strands)                             | Lab 3 (accelerator)            |
+| ------------- | ----------------------------------- | ------------------------------------------- | ------------------------------ |
+| Orchestration | `build_plan()` in Python            | **Strands agent** decides which tool to use | Agent on AgentCore Runtime     |
+| Tools         | Python functions                    | Same functions as `@tool`                   | Same tools + real AWS (future) |
+| Data          | YAML in `profiles/` and `projects/` | YAML (same)                                 | YAML + S3 / DynamoDB (future)  |
+| Permissions   | **Simulated** (text in the plan)    | Simulated                                   | IAM Identity Center (future)   |
+| State         | JSON in `.local-progress/`          | Local JSON                                  | DynamoDB (future)              |
 
 > Golden rule: **the repo must always run in Lab 1 without installing the Strands SDK.**
 > Lab 2 and Lab 3 are optional and additive; they don't break the local path.
@@ -31,6 +31,7 @@ pytest
 ```
 
 **Exercises:**
+
 1. Add a new profile in `profiles/` (e.g. `data-engineer.yaml`).
 2. Add a new project in `projects/`.
 3. Generate a plan with that combination and review the resulting Markdown.
@@ -62,6 +63,7 @@ See `agent/strands_agent.py`: it wraps the **same** functions from `agent/tools/
 write: `mark_step_done`) and passes them to a Strands `Agent` with `SYSTEM_PROMPT`.
 
 **Exercises:**
+
 1. Add the `mark_step_done` write tool to a conversation and record a step.
 2. Ask the agent to explain **what it would do** before doing it (human-in-the-loop).
 3. Review the dangerous-tools contract in `docs/AGENTCORE_STRANDS_NOTES.md`.
