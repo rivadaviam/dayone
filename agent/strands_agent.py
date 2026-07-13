@@ -63,8 +63,25 @@ def _is_yes(answer: str) -> bool:
     return normalized in {"y", "yes"}
 
 
-def _confirm_write_action(action_summary: str) -> bool:
+def _contains_dangerous_action(text: str) -> bool:
+    normalized = text.strip().lower()
+    return any(phrase in normalized for phrase in DANGEROUS_ACTIONS)
+
+
+def _confirm_write_action(action_summary: str, *, is_dangerous: bool = False) -> bool:
     """Ask for human approval before running any write tool in CLI mode."""
+    if is_dangerous:
+        print(
+            "\n[HITL] DANGEROUS ACTION - never auto-approved, "
+            "even with ONBOARD_AUTO_APPROVE_WRITES."
+        )
+        print(f"[HITL] {action_summary}")
+        try:
+            answer = input("[approval] Type the exact phrase 'I approve' to continue > ")
+        except EOFError:
+            return False
+        return answer.strip() == "I approve"
+
     auto_approve = os.environ.get("ONBOARD_AUTO_APPROVE_WRITES", "").strip().lower()
     if auto_approve in {"1", "true", "yes"}:
         return True
@@ -127,7 +144,9 @@ def mark_step_done(employee_email: str, step_id: str, note: str = "") -> dict:
     )
     if note:
         summary += f" (note: {note})"
-    if not _confirm_write_action(summary):
+    dangerous_text = f"{step_id} {note}".strip()
+    is_dangerous = _contains_dangerous_action(dangerous_text)
+    if not _confirm_write_action(summary, is_dangerous=is_dangerous):
         return {
             "status": "cancelled",
             "reason": "human_rejected_or_missing_approval",
