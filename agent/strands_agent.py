@@ -46,6 +46,40 @@ except ImportError as exc:  # pragma: no cover - only triggers without the SDK i
     )
 
 
+# --- Tool policy -------------------------------------------------------------
+# MVP rule from docs/AGENTCORE_STRANDS_NOTES.md:
+# dangerous actions must never run automatically.
+WRITE_TOOL_NAMES = {"mark_step_done"}
+DANGEROUS_ACTIONS = (
+    "create a real user",
+    "grant production permissions",
+    "read production secrets",
+    "deploy to production",
+)
+
+
+def _is_yes(answer: str) -> bool:
+    normalized = answer.strip().lower()
+    return normalized in {"y", "yes"}
+
+
+def _confirm_write_action(action_summary: str) -> bool:
+    """Ask for human approval before running any write tool in CLI mode."""
+    auto_approve = os.environ.get("ONBOARD_AUTO_APPROVE_WRITES", "").strip().lower()
+    if auto_approve in {"1", "true", "yes"}:
+        return True
+
+    print("\n[HITL] Proposed write action")
+    print(f"[HITL] {action_summary}")
+    print("[HITL] Continue? Reply 'yes' to approve, anything else to cancel.")
+    try:
+        answer = input("[approval] > ")
+    except EOFError:
+        print("[HITL] No approval received (EOF). Write action cancelled.")
+        return False
+    return _is_yes(answer)
+
+
 # --- Read tools --------------------------------------------------------------
 @tool
 def load_profile(profile_id: str) -> dict:
@@ -87,6 +121,20 @@ def mark_step_done(employee_email: str, step_id: str, note: str = "") -> dict:
 
     In production this is replaced by a write to DynamoDB.
     """
+    summary = (
+        f"{WRITE_TOOL_NAMES} -> mark step '{step_id}' as done "
+        f"for '{employee_email}'"
+    )
+    if note:
+        summary += f" (note: {note})"
+    if not _confirm_write_action(summary):
+        return {
+            "status": "cancelled",
+            "reason": "human_rejected_or_missing_approval",
+            "employee_email": employee_email,
+            "step_id": step_id,
+            "note": note,
+        }
     return _mark_step_done(employee_email, step_id, note)
 
 
@@ -94,7 +142,7 @@ def build_agent() -> Agent:
     """Build the Strands agent with a Bedrock model + onboarding tools."""
     model = BedrockModel(
         model_id=os.environ.get(
-            "BEDROCK_MODEL_ID", "anthropic.claude-3-5-sonnet-20241022-v2:0"
+            "BEDROCK_MODEL_ID", "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
         ),
         region_name=os.environ.get("AWS_REGION", "us-east-1"),
     )
@@ -118,6 +166,11 @@ def main() -> None:
     parser.add_argument("--email", required=True, help="Employee email")
     parser.add_argument("--profile", required=True, help="Profile id, e.g. backend-dev")
     parser.add_argument("--project", required=True, help="Project id, e.g. payments-platform")
+    parser.add_argument(
+        "--chat",
+        action="store_true",
+        help="Keep a conversation open after plan generation (recommended for Lab 2).",
+    )
     args = parser.parse_args()
 
     agent = build_agent()
@@ -125,10 +178,39 @@ def main() -> None:
         f"Generate the onboarding plan for employee '{args.employee}' "
         f"(email {args.email}) with profile '{args.profile}' on project "
         f"'{args.project}'. Use the load_profile and load_project tools to get "
-        f"the data and then generate_onboarding_plan to produce the plan in Markdown."
+        f"the data and then generate_onboarding_plan to produce a detailed step by step plan in Markdown. Show me the checklist."
     )
     result = agent(prompt)
     print(result)
+
+    if not args.chat:
+        return
+
+    print("\n[chat] Conversation mode enabled.")
+    print("[chat] Example: 'I finished step env_setup, mark it done with note local setup ok'.")
+    print("[chat] Type 'exit' or 'quit' to finish.\n")
+    while True:
+        try:
+            user_message = input("you> ").strip()
+        except EOFError:
+            print("\n[chat] Input ended.")
+            break
+
+        if not user_message:
+            continue
+        if user_message.lower() in {"exit", "quit"}:
+            print("[chat] Bye.")
+            break
+
+        turn_prompt = (
+            f"Employee context: name='{args.employee}', email='{args.email}', "
+            f"profile='{args.profile}', project='{args.project}'.\n"
+            f"User message: {user_message}\n"
+            "If this requires a write tool, explain your intended action first and "
+            "request confirmation before completing it."
+        )
+        turn_result = agent(turn_prompt)
+        print(f"agent> {turn_result}")
 
 
 if __name__ == "__main__":
