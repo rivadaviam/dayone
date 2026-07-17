@@ -99,17 +99,19 @@ Tool contract details (read / generation / write / dangerous) in
 
 ## Using the AWS accelerator
 
-This workshop is designed to coexist with the official accelerator `aws-samples/sample-strands-agentcore-starter`.
+This workshop includes a tracked AgentCore application under `agentcore/`,
+based on the official accelerator `aws-samples/sample-strands-agentcore-starter`.
 
 ```bash
-bash accelerator/clone_aws_starter.sh
+cd agentcore/cdk
+./deploy-all.sh --region us-east-1 --profile <your-profile> --ingress furl
 ```
 
-Then check `accelerator/INTEGRATION_PLAN.md` to decide whether to:
+Then check `accelerator/INTEGRATION_PLAN.md` for the integration and testing workflow:
 
-1. Use this repo as the domain layer and copy its tools/prompts into the starter.
-2. Use the starter as the full-stack base and migrate this MVP into its `agent/` folder.
-3. Keep both: starter for infrastructure and this repo for workshop exercises.
+1. `agentcore/` contains the full-stack UI, infrastructure, and deployed agent.
+2. The root `agent/`, `profiles/`, and `projects/` contain the local workshop domain.
+3. Changes to the deployed agent should be made in `agentcore/` and committed to Git.
 
 ## Suggested roadmap
 

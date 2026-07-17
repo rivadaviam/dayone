@@ -1,0 +1,11 @@
+bedrock-agentcore
+bedrock-agentcore-starter-toolkit
+strands-agents[otel,openai,anthropic]
+aws-bedrock-token-generator
+strands-agents-tools
+aws-opentelemetry-distro
+psutil
+httpx
+beautifulsoup4
+lxml
+PyYAML

@@ -1,0 +1,32 @@
+id: backend-dev
+name: Backend Developer
+summary: Profile for backend developers who will work on API services, integration, testing and staging deployment.
+permissions:
+  aws:
+    - staging-read-write
+    - prod-read-only
+    - cloudwatch-read
+    - secrets-read-dev
+  repositories:
+    access: read-write
+  ci_cd:
+    - view-build-logs
+    - trigger-staging-pipeline
+    - deploy-to-staging
+base_checklist:
+  day_1:
+    - Confirm access to AWS SSO / IAM Identity Center.
+    - Configure AWS CLI with the staging profile.
+    - Clone project repositories.
+    - Run local bootstrap.
+    - Run unit tests.
+    - Open a documentation PR or a simple first fix.
+  week_1:
+    - Complete the architecture walkthrough.
+    - Review 2 PRs from teammates.
+    - Understand the CI/CD pipeline.
+    - Understand incident runbooks.
+approvals_required:
+  - prod-write
+  - secrets-prod-read
+  - admin-access

@@ -1,0 +1,33 @@
+id: analytics-platform
+name: Analytics Platform
+business_goal: Platform for ingesting, transforming and exposing business analytics data across the company.
+architecture_summary: >
+  Data lake architecture with ingestion pipelines, transformation jobs and a query layer for
+  internal dashboards and reporting.
+repositories:
+  - name: analytics-ingestion
+    description: Ingestion pipelines that pull data from source systems into the data lake.
+    clone_url: https://git.example.internal/analytics/analytics-ingestion.git
+    bootstrap: make bootstrap
+    test: make test
+  - name: analytics-transform
+    description: Transformation jobs that clean and model raw data into analytics-ready tables.
+    clone_url: https://git.example.internal/analytics/analytics-transform.git
+    bootstrap: make bootstrap
+    test: make test
+  - name: analytics-infra
+    description: Infrastructure as code for data lake accounts, pipelines and cloud resources.
+    clone_url: https://git.example.internal/analytics/analytics-infra.git
+    bootstrap: make synth
+    test: make validate
+key_docs:
+  - docs/analytics/architecture.md
+  - docs/analytics/runbook.md
+  - docs/analytics/local-development.md
+first_tasks:
+  - Update the README with missing steps found during setup.
+  - Run the test suite and document environment errors.
+  - Review a recent PR on the analytics-ingestion repo.
+risk_notes:
+  - Do not grant production write permissions during initial onboarding.
+  - Production credentials require tech lead approval.

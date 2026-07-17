@@ -1,0 +1,32 @@
+id: payments-platform
+name: Payments Platform
+business_goal: Platform for processing payments, reconciliations and internal financial events.
+architecture_summary: >
+  Microservices-oriented architecture with backend APIs, asynchronous processing and deployment pipelines to staging and production.
+repositories:
+  - name: payments-api
+    description: Main API for payment authorization, capture and lookup.
+    clone_url: https://git.example.internal/payments/payments-api.git
+    bootstrap: make bootstrap
+    test: make test
+  - name: payments-worker
+    description: Asynchronous worker for payment events, retries and reconciliation.
+    clone_url: https://git.example.internal/payments/payments-worker.git
+    bootstrap: make bootstrap
+    test: make test
+  - name: payments-infra
+    description: Infrastructure as code for accounts, pipelines and cloud resources.
+    clone_url: https://git.example.internal/payments/payments-infra.git
+    bootstrap: make synth
+    test: make validate
+key_docs:
+  - docs/payments/architecture.md
+  - docs/payments/runbook.md
+  - docs/payments/local-development.md
+first_tasks:
+  - Update the README with missing steps found during setup.
+  - Run the test suite and document environment errors.
+  - Review a recent PR on the payments-api repo.
+risk_notes:
+  - Do not grant production write permissions during initial onboarding.
+  - Production credentials require tech lead approval.
